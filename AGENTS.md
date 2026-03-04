@@ -1,5 +1,13 @@
 # Backend Flow
 
+## Working Style
+
+For this repository, always use a plan-first approach:
+
+1. Inspect the relevant context and propose a clear plan first
+2. Wait for the user's explicit order or approval before making code changes
+3. Do not implement, patch files, or run substantive modifying commands until the user says to proceed
+
 ## Purpose
 
 This backend is an Express API for a Thai DTV visa assistant. It does three main things:
