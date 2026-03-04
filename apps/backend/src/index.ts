@@ -1,6 +1,7 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import { sendSuccess } from "./lib/apiResponse";
 import { errorHandler } from "./middleware/errorHandler";
 import router from "./routes";
 import { auth } from "./lib/auth";
@@ -29,9 +30,11 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/api/health", (_req, res) => {
-  res.json({
-    status: "ok",
-    timestamp: new Date().toISOString(),
+  sendSuccess(res, {
+    message: "Health check completed successfully.",
+    data: {
+      timestamp: new Date().toISOString(),
+    },
   });
 });
 

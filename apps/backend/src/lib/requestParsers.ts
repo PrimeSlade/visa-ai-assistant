@@ -1,7 +1,7 @@
 import type {
   ChatHistoryItem,
   ChatHistoryItemBody,
-} from "../models/generateReply";
+} from "../models/chat.model";
 
 export function parseRequiredString(
   value: unknown,

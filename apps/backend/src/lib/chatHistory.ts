@@ -1,4 +1,4 @@
-import type { ChatHistoryItem } from "../models/generateReply";
+import type { ChatHistoryItem } from "../models/chat.model";
 
 export type ChatHistoryFormat = "reply" | "editor";
 

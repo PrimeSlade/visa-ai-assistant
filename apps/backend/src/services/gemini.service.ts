@@ -1,6 +1,6 @@
 import { generateGeminiJsonReply } from "../lib/gemini";
 import { getSystemPromptContent } from "../lib/systemPrompts";
-import type { GeminiTestInput, GeminiTestResult } from "../models/geminiTest";
+import type { GeminiTestInput, GeminiTestResult } from "../models/gemini.model";
 
 export async function runGeminiTest(
   input: GeminiTestInput

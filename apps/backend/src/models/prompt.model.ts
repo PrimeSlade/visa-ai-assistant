@@ -1,4 +1,4 @@
-import type { ChatHistoryItem } from "./generateReply";
+import type { ChatHistoryItem } from "./chat.model";
 
 export type ImproveAiRequestBody = {
   clientSequence?: unknown;
@@ -29,4 +29,16 @@ export type PromptEditorDiagnosis = {
 export type PromptEditorResult = {
   diagnosis: PromptEditorDiagnosis[];
   prompt: string;
+};
+
+export type ImproveAiManuallyRequestBody = {
+  instructions?: unknown;
+};
+
+export type ImproveAiManuallyInput = {
+  instructions: string;
+};
+
+export type ImproveAiManuallyResult = {
+  updatedPrompt: string;
 };
