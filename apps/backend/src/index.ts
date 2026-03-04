@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import express from "express";
 import { errorHandler } from "./middleware/errorHandler";
 import router from "./routes";
+import { auth } from "./lib/auth";
+import { toNodeHandler } from "better-auth/node";
 
 dotenv.config();
 
@@ -12,9 +14,14 @@ const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
 
 app.use(
   cors({
-    origin: frontendUrl,
+    origin: [frontendUrl], // Replace with your frontend's origin
+    methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })
 );
+
+app.all("/api/auth/*", toNodeHandler(auth));
+
 app.use(express.json());
 
 app.get("/", (_req, res) => {
