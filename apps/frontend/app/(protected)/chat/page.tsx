@@ -1,79 +1,46 @@
 "use client";
 
-import { Bot, LoaderCircle, LogOut, SendHorizonal } from "lucide-react";
+import { LoaderCircle, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { authClient } from "../../../lib/auth-client";
-import { Button } from "../../../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../../components/ui/card";
-import { Input } from "../../../components/ui/input";
-
-const starterPrompts = [
-  "Am I eligible for the Thailand DTV visa?",
-  "What documents should I prepare first?",
-  "Can you review my situation before I apply?",
-];
-
-type Message = {
-  id: string;
-  role: "client" | "consultant";
-  content: string;
-};
-
-const initialMessages: Message[] = [
-  {
-    id: "welcome",
-    role: "consultant",
-    content:
-      "Hello. I can help you understand the Thailand DTV process, required documents, eligibility questions, and application preparation. What would you like to start with?",
-  },
-];
-
-function createMessage(role: Message["role"], content: string): Message {
-  return {
-    id: `${role}-${crypto.randomUUID()}`,
-    role,
-    content,
-  };
-}
+import { useState } from "react";
+import { ChatComposer } from "@/components/chat/chat-composer";
+import { ChatHeader } from "@/components/chat/chat-header";
+import { ChatMessageList } from "@/components/chat/chat-message-list";
+import { StarterPromptList } from "@/components/chat/starter-prompt-list";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useChatHistory } from "@/hooks/use-chat-history";
+import { authClient } from "@/lib/auth-client";
 
 export default function ChatPage() {
   const router = useRouter();
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
-  const [isSigningOut, startTransition] = useTransition();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const { data: session } = authClient.useSession();
 
-  const sendMessage = (content: string) => {
-    const trimmedContent = content.trim();
+  const { data: chatData, error, isLoading, isFetching } = useChatHistory();
 
-    if (!trimmedContent) {
+  const displayName = session?.user?.name?.trim() || session?.user?.email;
+  const errorMessage = error instanceof Error ? error.message : undefined;
+  const messages = chatData?.chatHistory ?? [];
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+
+    const { error } = await authClient.signOut();
+
+    if (error) {
+      setIsSigningOut(false);
       return;
     }
 
-    const userMessage = createMessage("client", trimmedContent);
-
-    setMessages((current) => [...current, userMessage]);
-    setInput("");
+    router.replace("/");
   };
 
-  const handleSignOut = () => {
-    startTransition(() => {
-      void (async () => {
-        const { error } = await authClient.signOut();
-
-        if (error) {
-          return;
-        }
-
-        router.replace("/");
-      })();
-    });
+  const handleComposerSubmit = () => {
+    if (!input.trim()) {
+      return;
+    }
   };
 
   return (
@@ -81,7 +48,9 @@ export default function ChatPage() {
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
         <header className="flex items-center justify-between border-b border-border/70 py-4">
           <div className="space-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight">Visa chat</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Welcome{displayName ? `, ${displayName}` : ""}
+            </h1>
             <p className="text-sm text-muted-foreground">
               Ask questions, review requirements, and get guided next steps.
             </p>
@@ -104,95 +73,28 @@ export default function ChatPage() {
 
         <section className="grid flex-1 gap-6 py-6 lg:grid-cols-[280px_minmax(0,1fr)]">
           <aside className="space-y-4">
-            <Card className="border-border/70 bg-card/80">
-              <CardHeader>
-                <CardTitle className="text-base">Start with</CardTitle>
-                <CardDescription>
-                  Quick prompts to begin the conversation.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {starterPrompts.map((prompt) => (
-                  <button
-                    key={prompt}
-                    type="button"
-                    className="w-full rounded-xl border border-border/70 bg-background px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-accent"
-                    onClick={() => sendMessage(prompt)}
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </CardContent>
-            </Card>
+            <StarterPromptList onSelect={setInput} />
           </aside>
 
           <Card className="flex min-h-[680px] flex-col border-border/70 bg-card/80">
-            <CardHeader className="border-b border-border/70">
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-full border border-border/70 bg-background">
-                  <Bot className="size-4" />
-                </div>
-                <div>
-                  <CardTitle className="text-base">
-                    Thailand DTV Assistant
-                  </CardTitle>
-                  <CardDescription>
-                    Tell me about your situation and I will guide you from
-                    there.
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
+            <ChatHeader />
 
             <CardContent className="flex flex-1 flex-col p-6">
               <div className="space-y-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${
-                      message.role === "consultant"
-                        ? "justify-start"
-                        : "justify-end"
-                    }`}
-                  >
-                    <div
-                      className={`w-fit max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 whitespace-pre-wrap break-words sm:max-w-xl ${
-                        message.role === "consultant"
-                          ? "border border-border/70 bg-background text-foreground"
-                          : "bg-foreground text-background"
-                      }`}
-                    >
-                      {message.content}
-                    </div>
-                  </div>
-                ))}
+                <ChatMessageList
+                  errorMessage={errorMessage}
+                  isLoading={isLoading}
+                  messages={messages}
+                />
               </div>
 
               <div className="mt-auto pt-10">
-                <form
-                  className="rounded-2xl border border-border/70 bg-background p-3"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    sendMessage(input);
-                  }}
-                >
-                  <div className="flex items-end gap-3">
-                    <Input
-                      placeholder="Type your message here..."
-                      className="border-0 bg-transparent shadow-none focus-visible:ring-0"
-                      value={input}
-                      onChange={(event) => setInput(event.target.value)}
-                    />
-                      <Button
-                        size="icon"
-                        className="shrink-0 rounded-md"
-                        type="submit"
-                        disabled={!input.trim()}
-                      >
-                      <SendHorizonal className="size-4" />
-                    </Button>
-                  </div>
-                </form>
+                <ChatComposer
+                  input={input}
+                  isFetching={isFetching}
+                  onChange={setInput}
+                  onSubmit={handleComposerSubmit}
+                />
               </div>
             </CardContent>
           </Card>

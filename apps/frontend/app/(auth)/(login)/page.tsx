@@ -1,14 +1,13 @@
 import { ShieldCheck, Sparkles, Workflow } from "lucide-react";
-import { AuthPanel } from "../../../components/auth-panel";
-import { Badge } from "../../../components/ui/badge";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../../components/ui/card";
-import { Separator } from "../../../components/ui/separator";
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { AuthPanel } from "@/components/auth-panel";
 
 const featureCards = [
   {
@@ -40,7 +39,7 @@ export default function HomePage() {
             <div className="space-y-5">
               <div className="max-w-3xl space-y-4">
                 <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-                  Manage your visa journey with clarity and confidence.
+                  Manage your visa journey.
                 </h1>
                 <p className="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
                   Sign in to continue your conversations, review guidance, and

@@ -1,7 +1,6 @@
 "use client";
 
 import { LoaderCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { authClient } from "../lib/auth-client";
 import { Button } from "./ui/button";
@@ -38,7 +37,6 @@ function getErrorMessage(error: { message?: string } | null | undefined) {
 }
 
 export function AuthPanel() {
-  const router = useRouter();
   const {
     data: session,
     isPending: isSessionPending,
@@ -50,11 +48,15 @@ export function AuthPanel() {
   const [notice, setNotice] = useState<Notice>(null);
   const [isSubmitting, startTransition] = useTransition();
 
+  const navigateToChat = () => {
+    window.location.assign("/chat");
+  };
+
   useEffect(() => {
     if (session?.user) {
-      router.replace("/chat");
+      navigateToChat();
     }
-  }, [router, session?.user]);
+  }, [session?.user]);
 
   const handleSignUp = () => {
     startTransition(() => {
@@ -76,7 +78,7 @@ export function AuthPanel() {
         }
 
         setSignUpValues(defaultSignUp);
-        router.push("/chat");
+        navigateToChat();
       })();
     });
   };
@@ -101,7 +103,7 @@ export function AuthPanel() {
         }
 
         setSignInValues(defaultSignIn);
-        router.push("/chat");
+        navigateToChat();
       })();
     });
   };
