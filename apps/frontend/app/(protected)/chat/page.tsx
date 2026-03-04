@@ -1,17 +1,18 @@
 "use client";
 
-import { Bot, SendHorizonal, ShieldCheck } from "lucide-react";
-import { useState } from "react";
-import { Badge } from "../../components/ui/badge";
-import { Button } from "../../components/ui/button";
+import { Bot, LoaderCircle, LogOut, SendHorizonal } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { authClient } from "../../../lib/auth-client";
+import { Button } from "../../../components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
+} from "../../../components/ui/card";
+import { Input } from "../../../components/ui/input";
 
 const starterPrompts = [
   "Am I eligible for the Thailand DTV visa?",
@@ -43,8 +44,10 @@ function createMessage(role: Message["role"], content: string): Message {
 }
 
 export default function ChatPage() {
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
+  const [isSigningOut, startTransition] = useTransition();
 
   const sendMessage = (content: string) => {
     const trimmedContent = content.trim();
@@ -59,6 +62,20 @@ export default function ChatPage() {
     setInput("");
   };
 
+  const handleSignOut = () => {
+    startTransition(() => {
+      void (async () => {
+        const { error } = await authClient.signOut();
+
+        if (error) {
+          return;
+        }
+
+        router.replace("/");
+      })();
+    });
+  };
+
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
@@ -70,10 +87,19 @@ export default function ChatPage() {
             </p>
           </div>
 
-          <div className="hidden items-center gap-2 rounded-full border border-border/70 bg-card px-4 py-2 text-sm text-muted-foreground sm:flex">
-            <ShieldCheck className="size-4" />
-            Private session
-          </div>
+          <Button
+            type="button"
+            className="hidden rounded-md bg-foreground text-background hover:bg-foreground/90 sm:inline-flex"
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+          >
+            {isSigningOut ? (
+              <LoaderCircle className="size-4 animate-spin" />
+            ) : (
+              <LogOut className="size-4" />
+            )}
+            Logout
+          </Button>
         </header>
 
         <section className="grid flex-1 gap-6 py-6 lg:grid-cols-[280px_minmax(0,1fr)]">
@@ -123,13 +149,21 @@ export default function ChatPage() {
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`rounded-2xl px-4 py-3 text-sm leading-6 ${
+                    className={`flex ${
                       message.role === "consultant"
-                        ? "max-w-xl border border-border/70 bg-background text-foreground"
-                        : "ml-auto max-w-lg bg-foreground text-background"
+                        ? "justify-start"
+                        : "justify-end"
                     }`}
                   >
-                    {message.content}
+                    <div
+                      className={`w-fit max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 whitespace-pre-wrap break-words sm:max-w-xl ${
+                        message.role === "consultant"
+                          ? "border border-border/70 bg-background text-foreground"
+                          : "bg-foreground text-background"
+                      }`}
+                    >
+                      {message.content}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -149,12 +183,12 @@ export default function ChatPage() {
                       value={input}
                       onChange={(event) => setInput(event.target.value)}
                     />
-                    <Button
-                      size="icon"
-                      className="shrink-0 rounded-full"
-                      type="submit"
-                      disabled={!input.trim()}
-                    >
+                      <Button
+                        size="icon"
+                        className="shrink-0 rounded-md"
+                        type="submit"
+                        disabled={!input.trim()}
+                      >
                       <SendHorizonal className="size-4" />
                     </Button>
                   </div>

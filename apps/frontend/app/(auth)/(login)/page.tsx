@@ -1,14 +1,14 @@
 import { ShieldCheck, Sparkles, Workflow } from "lucide-react";
-import { AuthPanel } from "../components/auth-panel";
-import { Badge } from "../components/ui/badge";
+import { AuthPanel } from "../../../components/auth-panel";
+import { Badge } from "../../../components/ui/badge";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../components/ui/card";
-import { Separator } from "../components/ui/separator";
+} from "../../../components/ui/card";
+import { Separator } from "../../../components/ui/separator";
 
 const featureCards = [
   {
@@ -38,10 +38,6 @@ export default function HomePage() {
         <section className="grid flex-1 items-center gap-6 py-10 lg:grid-cols-[minmax(0,1.2fr)_420px]">
           <div className="space-y-6">
             <div className="space-y-5">
-              <Badge variant="outline" className="rounded-full px-3 py-1">
-                Welcome back
-              </Badge>
-
               <div className="max-w-3xl space-y-4">
                 <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
                   Manage your visa journey with clarity and confidence.

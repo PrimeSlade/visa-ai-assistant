@@ -4,7 +4,6 @@ import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { authClient } from "../lib/auth-client";
-import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -15,7 +14,6 @@ import {
 } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Separator } from "./ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 type Mode = "sign-in" | "sign-up";
@@ -136,23 +134,12 @@ export function AuthPanel() {
   return (
     <Card className="border-border/70 bg-card/90 shadow-lg shadow-black/5 backdrop-blur supports-[backdrop-filter]:bg-card/75 lg:sticky lg:top-8">
       <CardHeader className="gap-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-2">
-            <Badge variant="outline" className="rounded-full px-3 py-1">
-              Account
-            </Badge>
-            <div className="space-y-1">
-              <CardTitle className="text-2xl tracking-tight">Sign in to your account</CardTitle>
-              <CardDescription className="max-w-sm text-sm leading-6">
-                Access your conversations, updates, and visa guidance in one
-                secure place.
-              </CardDescription>
-            </div>
-          </div>
-
-          <Badge variant="secondary" className="rounded-full">
-            Welcome
-          </Badge>
+        <div className="space-y-1">
+          <CardTitle className="text-2xl tracking-tight">Sign in to your account</CardTitle>
+          <CardDescription className="max-w-sm text-sm leading-6">
+            Access your conversations, updates, and visa guidance in one
+            secure place.
+          </CardDescription>
         </div>
       </CardHeader>
 
@@ -300,8 +287,6 @@ export function AuthPanel() {
             </form>
           </TabsContent>
         </Tabs>
-
-        <Separator />
 
         {notice ? (
           <div
