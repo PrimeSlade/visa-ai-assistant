@@ -4,6 +4,7 @@ import { testGemini } from "../controllers/gemini.controller";
 import {
   getAdminPromptByNameHandler,
   improveAiHandler,
+  improveAiBudgetHandler,
   improveAiManuallyHandler,
   updateConsultantPromptHandler,
 } from "../controllers/prompt.controller";
@@ -19,6 +20,13 @@ router.use(chatRouter);
 router.post("/generate-reply", generateReplyHandler);
 router.post("/improve-ai", improveAiHandler);
 router.post("/improve-ai-manually", improveAiManuallyHandler);
+
+router.post(
+  "/improve-ai-budget",
+  requireAuth,
+  requireAdmin,
+  improveAiBudgetHandler
+);
 
 router.get(
   "/admin/prompts",

@@ -5,6 +5,8 @@ import { parseChatHistory, parseRequiredString } from "../lib/requestParsers";
 import type {
   AdminPromptResult,
   ImproveAiInput,
+  ImproveAiBudgetInput,
+  ImproveAiBudgetRequestBody,
   ImproveAiManuallyInput,
   ImproveAiManuallyRequestBody,
   ImproveAiRequestBody,
@@ -14,6 +16,7 @@ import type {
 import {
   getAdminPromptByName,
   improveAi,
+  improveAiBudget,
   improveAiManually,
   updateConsultantPrompt,
 } from "../services/prompt.service";
@@ -44,6 +47,37 @@ function parseImproveAiManuallyInput(
       instructions,
       "Request body must include a non-empty string `instructions`."
     ),
+  };
+}
+
+function parseImproveAiBudgetInput(
+  body: ImproveAiBudgetRequestBody
+): ImproveAiBudgetInput {
+  const { conversations, similarityThreshold } = body;
+
+  if (!Array.isArray(conversations)) {
+    throw new Error("Request body must include `conversations` as an array.");
+  }
+
+  let parsedThreshold = 0.7;
+  if (similarityThreshold !== undefined) {
+    if (
+      typeof similarityThreshold !== "number" ||
+      Number.isNaN(similarityThreshold)
+    ) {
+      throw new Error("If provided, `similarityThreshold` must be a number.");
+    }
+
+    if (similarityThreshold < 0 || similarityThreshold > 1) {
+      throw new Error("`similarityThreshold` must be between 0 and 1.");
+    }
+
+    parsedThreshold = similarityThreshold;
+  }
+
+  return {
+    conversations: conversations as ImproveAiBudgetInput["conversations"],
+    similarityThreshold: parsedThreshold,
   };
 }
 
@@ -112,6 +146,32 @@ export async function improveAiManuallyHandler(
   }
 }
 
+export async function improveAiBudgetHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const input: ImproveAiBudgetInput = parseImproveAiBudgetInput(
+      req.body as ImproveAiBudgetRequestBody
+    );
+    const result = await improveAiBudget(input);
+    sendSuccess(res, {
+      message: "Budget improvement analysis completed successfully.",
+      data: result,
+    });
+  } catch (error) {
+    if (error instanceof HttpError) {
+      next(error);
+      return;
+    }
+
+    const message =
+      error instanceof Error ? error.message : "Invalid request body.";
+    next(new HttpError(400, message));
+  }
+}
+
 export async function getAdminPromptByNameHandler(
   req: Request,
   res: Response,
@@ -158,7 +218,9 @@ export async function updateConsultantPromptHandler(
     }
 
     const message =
-      error instanceof Error ? error.message : "Failed to update consultant prompt.";
+      error instanceof Error
+        ? error.message
+        : "Failed to update consultant prompt.";
     next(new HttpError(400, message));
   }
 }

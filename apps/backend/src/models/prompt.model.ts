@@ -17,6 +17,61 @@ export type ImproveAiResult = {
   updatedPrompt: string;
 };
 
+export type BudgetConversationMessage = {
+  message_id: number;
+  direction: "in" | "out";
+  text: string;
+  timestamp: number;
+};
+
+export type BudgetConversationRecord = {
+  contact_id?: string;
+  scenario?: string;
+  conversation?: BudgetConversationMessage[];
+};
+
+export type ImproveAiBudgetRequestBody = {
+  conversations?: unknown;
+  similarityThreshold?: unknown;
+};
+
+export type ImproveAiBudgetInput = {
+  conversations: BudgetConversationRecord[];
+  similarityThreshold: number;
+};
+
+export type BudgetCategory = "eligibility" | "location" | "documents";
+
+export type BudgetExampleEvaluation = {
+  category: BudgetCategory;
+  contactId: string;
+  clientSequence: string;
+  consultantReply: string;
+  predictedReply: string;
+  similarityScore: number;
+  similarEnough: boolean;
+};
+
+export type ImproveAiBudgetResult = {
+  shouldUpdatePrompt: boolean;
+  reason: string;
+  oldPrompt: string;
+  proposedPrompt: string | null;
+  selectedExamples: BudgetExampleEvaluation[];
+  apiUsage: {
+    predictionCalls: number;
+    editorCalls: number;
+    total: number;
+  };
+  budgetPolicy: {
+    sampleCount: number;
+    maxEditorCalls: number;
+    maxTotalGeminiCalls: number;
+    threshold: number;
+    keywordQuota: Record<BudgetCategory, number>;
+  };
+};
+
 export type PromptEditorDiagnosis = {
   dimension: string;
   observation: string;
