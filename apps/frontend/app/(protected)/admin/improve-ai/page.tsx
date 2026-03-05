@@ -131,7 +131,10 @@ export default function ImproveAiAdminPage() {
             <Button asChild variant="outline">
               <Link href="/chat">Back to Chat</Link>
             </Button>
-            <Button asChild variant="secondary">
+            <Button
+              asChild
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
               <Link href="/admin/improve-ai/budget">
                 <Sparkles className="size-4" />
                 Improve AI (JSON)
