@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { LoaderCircle } from "lucide-react";
 import type { ChatHistoryMessage } from "@/lib/chat.api";
+import { MarkdownMessage } from "./markdown-message";
 import { TypingIndicator } from "./typing-indicator";
 
 const defaultConsultantMessage =
@@ -98,7 +99,7 @@ export function ChatMessageList({
       <div className="space-y-4">
         <div className="flex justify-start">
           <div className="w-fit max-w-[85%] rounded-2xl rounded-bl-none border border-border/70 bg-background px-4 py-3 text-sm leading-6 whitespace-pre-wrap break-words text-foreground sm:max-w-xl">
-            {defaultConsultantMessage}
+            <MarkdownMessage content={defaultConsultantMessage} />
           </div>
         </div>
         {messages.map((message, index) => (
@@ -116,7 +117,11 @@ export function ChatMessageList({
                       : "rounded-br-none bg-foreground text-background"
                   }`}
                 >
-                  {message.message}
+                  {message.role === "consultant" ? (
+                    <MarkdownMessage content={message.message} />
+                  ) : (
+                    message.message
+                  )}
                 </div>
               </div>
             </div>
