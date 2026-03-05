@@ -28,6 +28,10 @@ export type SendChatReplyResponse = {
   };
 };
 
+export type DeleteMyConversationResponse = {
+  deletedConversations: number;
+};
+
 type ApiSuccessResponse<T> = {
   status: "success";
   code: number;
@@ -71,3 +75,16 @@ export const sendChatReply = async (
     throw new Error(error.message ?? "Failed to send chat reply request.");
   }
 };
+
+export const deleteMyConversation =
+  async (): Promise<DeleteMyConversationResponse> => {
+    try {
+      const { data } = await apiClient.delete<
+        ApiSuccessResponse<DeleteMyConversationResponse>
+      >("/me/conversation");
+
+      return data.data;
+    } catch (error: any) {
+      throw new Error(error.message ?? "Failed to delete conversation.");
+    }
+  };

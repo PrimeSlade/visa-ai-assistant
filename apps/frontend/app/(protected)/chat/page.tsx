@@ -10,7 +10,10 @@ import { ChatMessageList } from "@/components/chat/chat-message-list";
 import { StarterPromptList } from "@/components/chat/starter-prompt-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useChatHistory } from "@/hooks/use-chat-history";
+import {
+  useChatHistory,
+  useDeleteMyConversation,
+} from "@/hooks/use-chat-history";
 import { useChatReply } from "@/hooks/use-chat-reply";
 import { authClient } from "@/lib/auth-client";
 
@@ -23,6 +26,10 @@ export default function ChatPage() {
   const { data: session } = authClient.useSession();
   const { mutateAsync: sendChatReply, isPending: isSendingReply } =
     useChatReply();
+  const {
+    mutateAsync: deleteMyConversation,
+    isPending: isDeletingConversation,
+  } = useDeleteMyConversation();
 
   const { data: chatData, error, isLoading, isFetching } = useChatHistory();
 
@@ -59,6 +66,20 @@ export default function ChatPage() {
         error instanceof Error
           ? error.message
           : "Something went wrong while sending your message."
+      );
+      setIsErrorDialogOpen(true);
+    }
+  };
+
+  const handleDeleteConversation = async () => {
+    try {
+      await deleteMyConversation();
+      setInput("");
+    } catch (error) {
+      setErrorDialogMessage(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong while deleting your conversation."
       );
       setIsErrorDialogOpen(true);
     }
@@ -103,17 +124,18 @@ export default function ChatPage() {
           </aside>
 
           <Card className="flex h-[680px] flex-col border-border/70 bg-card/80">
-            <ChatHeader />
+            <ChatHeader
+              onDeleteConversation={handleDeleteConversation}
+              isDeletingConversation={isDeletingConversation}
+            />
 
             <CardContent className="flex flex-1 min-h-0 flex-col">
-              <div className="flex-1 min-h-0 space-y-4 overflow-y-auto pr-1">
-                <ChatMessageList
-                  errorMessage={errorMessage}
-                  isLoading={isLoading}
-                  messages={messages}
-                  isTyping={isSendingReply}
-                />
-              </div>
+              <ChatMessageList
+                errorMessage={errorMessage}
+                isLoading={isLoading}
+                messages={messages}
+                isTyping={isSendingReply}
+              />
 
               <div className="mt-auto pt-4">
                 <ChatComposer
