@@ -7,6 +7,7 @@ import type {
   GenerateReplyRequestBody,
 } from "../models/chat.model";
 import {
+  deleteMyConversation,
   generateReply,
   generateReplyFromMessage,
   getChatHistory,
@@ -113,5 +114,35 @@ export async function generateReplyFromMessageHandler(
     const message =
       error instanceof Error ? error.message : "Invalid request body.";
     next(new HttpError(400, message));
+  }
+}
+
+export async function deleteMyConversationHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new HttpError(401, "Unauthorized.");
+    }
+
+    const result = await deleteMyConversation(userId);
+
+    sendSuccess(res, {
+      message: "Conversation deleted successfully.",
+      data: result,
+    });
+  } catch (error) {
+    if (error instanceof HttpError) {
+      next(error);
+      return;
+    }
+
+    const message =
+      error instanceof Error ? error.message : "Failed to delete conversation.";
+    next(new HttpError(500, message));
   }
 }

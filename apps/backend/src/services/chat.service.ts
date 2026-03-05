@@ -6,9 +6,11 @@ import { getSystemPromptContent } from "../lib/systemPrompts";
 import {
   createConversation,
   createConversationMessage,
+  deleteUserConversations,
   findUserChatHistory,
   findLatestConversationId,
   setConversationLastMessageAt,
+  type DeleteMyConversationResult,
   type GenerateReplyFromMessageInput,
   type GenerateReplyFromMessageResult,
   type GenerateReplyInput,
@@ -117,4 +119,10 @@ export async function generateReplyFromMessage(
       consultantMessage: "created",
     },
   };
+}
+
+export async function deleteMyConversation(
+  userId: string
+): Promise<DeleteMyConversationResult> {
+  return deleteUserConversations(userId);
 }

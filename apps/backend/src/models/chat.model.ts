@@ -54,6 +54,10 @@ export type GetChatHistoryResult = {
   chatHistory: ChatHistoryMessage[];
 };
 
+export type DeleteMyConversationResult = {
+  deletedConversations: number;
+};
+
 export type ChatModelTx = Prisma.TransactionClient;
 
 type UserWithConversations = {
@@ -184,4 +188,18 @@ export async function setConversationLastMessageAt(
       lastMessageAt,
     },
   });
+}
+
+export async function deleteUserConversations(
+  userId: string
+): Promise<DeleteMyConversationResult> {
+  const result = await prisma.conversation.deleteMany({
+    where: {
+      userId,
+    },
+  });
+
+  return {
+    deletedConversations: result.count,
+  };
 }

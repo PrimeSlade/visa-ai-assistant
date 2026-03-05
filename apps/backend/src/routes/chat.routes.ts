@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  deleteMyConversationHandler,
   generateReplyFromMessageHandler,
   getChatHistoryHandler,
 } from "../controllers/chat.controller";
@@ -9,5 +10,6 @@ const chatRouter = Router();
 
 chatRouter.get("/chat-history", requireAuth, getChatHistoryHandler);
 chatRouter.post("/chat-reply", requireAuth, generateReplyFromMessageHandler);
+chatRouter.delete("/me/conversation", requireAuth, deleteMyConversationHandler);
 
 export default chatRouter;
