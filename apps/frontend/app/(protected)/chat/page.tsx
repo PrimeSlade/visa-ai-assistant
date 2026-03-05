@@ -1,6 +1,7 @@
 "use client";
 
 import { LoaderCircle, LogOut } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ChatComposer } from "@/components/chat/chat-composer";
@@ -34,6 +35,8 @@ export default function ChatPage() {
   const { data: chatData, error, isLoading, isFetching } = useChatHistory();
 
   const displayName = session?.user?.name?.trim() || session?.user?.email;
+  const isAdmin =
+    (session?.user as { role?: string | null } | undefined)?.role === "admin";
   const errorMessage = error instanceof Error ? error.message : undefined;
   const messages = chatData?.chatHistory ?? [];
 
@@ -103,19 +106,32 @@ export default function ChatPage() {
             </p>
           </div>
 
-          <Button
-            type="button"
-            className="hidden rounded-md bg-foreground text-background hover:bg-foreground/90 sm:inline-flex"
-            onClick={handleSignOut}
-            disabled={isSigningOut}
-          >
-            {isSigningOut ? (
-              <LoaderCircle className="size-4 animate-spin" />
-            ) : (
-              <LogOut className="size-4" />
-            )}
-            Logout
-          </Button>
+          <div className="hidden items-center gap-2 sm:flex">
+            {isAdmin ? (
+              <>
+                <Button asChild type="button" variant="outline">
+                  <Link href="/admin/improve-ai">Improve AI</Link>
+                </Button>
+                <Button asChild type="button" variant="outline">
+                  <Link href="/admin/assign-role">Assign Admin Role</Link>
+                </Button>
+              </>
+            ) : null}
+
+            <Button
+              type="button"
+              className="rounded-md bg-foreground text-background hover:bg-foreground/90"
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+            >
+              {isSigningOut ? (
+                <LoaderCircle className="size-4 animate-spin" />
+              ) : (
+                <LogOut className="size-4" />
+              )}
+              Logout
+            </Button>
+          </div>
         </header>
 
         <section className="grid flex-1 gap-6 py-6 lg:grid-cols-[280px_minmax(0,1fr)]">

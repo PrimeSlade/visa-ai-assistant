@@ -1,6 +1,7 @@
 "use client";
 
 import { LoaderCircle } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { authClient } from "../lib/auth-client";
 import { Button } from "./ui/button";
@@ -240,6 +241,10 @@ export function AuthPanel() {
                 handleSignIn();
               }}
             >
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/admin/assign-role">Assign Admin Role</Link>
+              </Button>
+
               <div className="space-y-2">
                 <Label htmlFor="sign-in-email">Email</Label>
                 <Input

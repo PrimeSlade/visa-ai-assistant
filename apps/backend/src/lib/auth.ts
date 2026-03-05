@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./prisma";
+import { admin } from "better-auth/plugins";
 
 const port = process.env.PORT ?? "4000";
 const baseURL = process.env.BETTER_AUTH_URL ?? `http://localhost:${port}`;
@@ -20,4 +21,5 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  plugins: [admin()],
 });
