@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { LoaderCircle, Shield, User as UserIcon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,14 +17,9 @@ type AdminUser = {
   email?: string | null;
 };
 
-type Notice =
-  | {
-      tone: "success" | "error";
-      message: string;
-    }
-  | null;
-
-function getErrorMessage(error: { message?: string } | null | undefined): string {
+function getErrorMessage(
+  error: { message?: string } | null | undefined
+): string {
   return error?.message ?? "Request could not be completed. Please try again.";
 }
 
@@ -32,19 +28,14 @@ export default function AssignRoleAdminPage() {
   const [email, setEmail] = useState("");
   const [targetRole, setTargetRole] = useState<RoleValue>("admin");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [notice, setNotice] = useState<Notice>(null);
 
   const handleUpdateByEmail = async () => {
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail) {
-      setNotice({
-        tone: "error",
-        message: "Please enter an email.",
-      });
+      toast.error("Please enter an email.");
       return;
     }
 
-    setNotice(null);
     setIsSubmitting(true);
 
     const { data, error } = await authClient.admin.listUsers({
@@ -58,10 +49,8 @@ export default function AssignRoleAdminPage() {
     });
 
     if (error) {
-      setNotice({
-        tone: "error",
-        message: getErrorMessage(error),
-      });
+      toast.error(getErrorMessage(error));
+
       setIsSubmitting(false);
       return;
     }
@@ -69,10 +58,8 @@ export default function AssignRoleAdminPage() {
     const user = ((data as { users?: AdminUser[] } | null)?.users ?? [])[0];
 
     if (!user?.id) {
-      setNotice({
-        tone: "error",
-        message: "No user found with this email.",
-      });
+      toast.error("No user found with this email.");
+
       setIsSubmitting(false);
       return;
     }
@@ -83,19 +70,13 @@ export default function AssignRoleAdminPage() {
     });
 
     if (setRoleError) {
-      setNotice({
-        tone: "error",
-        message: getErrorMessage(setRoleError),
-      });
+      toast.error(getErrorMessage(setRoleError));
       setIsSubmitting(false);
       return;
     }
 
     setEmail("");
-    setNotice({
-      tone: "success",
-      message: `Role updated to "${targetRole}" successfully.`,
-    });
+    toast.success(`Role updated to "${targetRole}" successfully.`);
     setIsSubmitting(false);
   };
 
@@ -107,7 +88,9 @@ export default function AssignRoleAdminPage() {
       <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col justify-center px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Assign User Roles</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Assign User Roles
+            </h1>
             <p className="text-sm text-muted-foreground">
               Privacy-focused role assignment by email.
             </p>
@@ -163,7 +146,9 @@ export default function AssignRoleAdminPage() {
                   void handleUpdateByEmail();
                 }}
               >
-                {isSubmitting ? <LoaderCircle className="size-4 animate-spin" /> : null}
+                {isSubmitting ? (
+                  <LoaderCircle className="size-4 animate-spin" />
+                ) : null}
                 Apply Role
               </Button>
             </div>
@@ -174,17 +159,6 @@ export default function AssignRoleAdminPage() {
           </CardContent>
         </Card>
 
-        {notice ? (
-          <div
-            className={`mt-4 rounded-lg border px-4 py-3 text-sm ${
-              notice.tone === "success"
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                : "border-red-200 bg-red-50 text-red-700"
-            }`}
-          >
-            {notice.message}
-          </div>
-        ) : null}
       </div>
     </main>
   );
