@@ -79,7 +79,7 @@ export default function ChatPage() {
           <Card className="flex min-h-[680px] flex-col border-border/70 bg-card/80">
             <ChatHeader />
 
-            <CardContent className="flex flex-1 flex-col p-6">
+            <CardContent className="flex flex-1 flex-col">
               <div className="space-y-4">
                 <ChatMessageList
                   errorMessage={errorMessage}

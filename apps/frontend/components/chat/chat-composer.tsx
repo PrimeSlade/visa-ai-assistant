@@ -17,22 +17,22 @@ export function ChatComposer({
 }: ChatComposerProps) {
   return (
     <form
-      className="rounded-2xl border border-border/70 bg-background p-3"
+      className="mt-2 rounded-xl border border-border/70 bg-background px-2.5 py-1.5"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit();
       }}
     >
-      <div className="flex items-end gap-3">
+      <div className="flex items-end gap-2">
         <Input
           placeholder="Type your message here..."
-          className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+          className="h-9 border-0 bg-transparent px-2 text-sm shadow-none focus-visible:ring-0"
           value={input}
           onChange={(event) => onChange(event.target.value)}
         />
         <Button
           size="icon"
-          className="shrink-0 rounded-md"
+          className="size-9 shrink-0 rounded-md"
           type="submit"
           disabled={!input.trim()}
         >
