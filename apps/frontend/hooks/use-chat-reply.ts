@@ -24,20 +24,21 @@ export function useChatReply() {
     OptimisticContext
   >({
     mutationFn: (input: SendChatReplyRequest) => sendChatReply(input),
-    onMutate: async (input) => {
+    onMutate: async (input: SendChatReplyRequest) => {
       await queryClient.cancelQueries({
         queryKey: ["chat-history"],
       });
 
-      const previousChatHistory = queryClient.getQueryData<GetChatHistoryResponse>([
-        "chat-history",
-      ]);
+      const previousChatHistory =
+        queryClient.getQueryData<GetChatHistoryResponse>(["chat-history"]);
       const optimisticMessageId = `temp-client-${Date.now()}`;
 
       queryClient.setQueryData<GetChatHistoryResponse>(
         ["chat-history"],
-        (current) => {
-          const base = current ?? {
+        (
+          current: GetChatHistoryResponse | undefined
+        ): GetChatHistoryResponse => {
+          const base: GetChatHistoryResponse = current ?? {
             conversationId: null,
             chatHistory: [],
           };
@@ -61,16 +62,22 @@ export function useChatReply() {
         optimisticMessageId,
       };
     },
-    onSuccess: (data, _variables, context) => {
+    onSuccess: (
+      data: SendChatReplyResponse,
+      _variables: SendChatReplyRequest,
+      onMutateResult: OptimisticContext | undefined
+    ) => {
       queryClient.setQueryData<GetChatHistoryResponse>(
         ["chat-history"],
-        (current) => {
-          const base = current ?? {
+        (
+          current: GetChatHistoryResponse | undefined
+        ): GetChatHistoryResponse => {
+          const base: GetChatHistoryResponse = current ?? {
             conversationId: data.conversationId,
             chatHistory: [],
           };
           const withoutOptimistic = base.chatHistory.filter(
-            (message) => message.id !== context?.optimisticMessageId
+            (message) => message.id !== onMutateResult?.optimisticMessageId
           );
 
           return {
@@ -84,16 +91,28 @@ export function useChatReply() {
         }
       );
     },
-    onError: async (_error, _variables, context) => {
-      if (context?.previousChatHistory) {
-        queryClient.setQueryData(["chat-history"], context.previousChatHistory);
+    onError: async (
+      _error: Error,
+      _variables: SendChatReplyRequest,
+      onMutateResult: OptimisticContext | undefined
+    ) => {
+      if (onMutateResult?.previousChatHistory) {
+        queryClient.setQueryData<GetChatHistoryResponse>(
+          ["chat-history"],
+          onMutateResult.previousChatHistory
+        );
       }
 
       await queryClient.invalidateQueries({
         queryKey: ["chat-history"],
       });
     },
-    onSettled: async () => {
+    onSettled: async (
+      _data: SendChatReplyResponse | undefined,
+      _error: Error | null,
+      _variables: SendChatReplyRequest,
+      _onMutateResult: OptimisticContext | undefined
+    ) => {
       await queryClient.invalidateQueries({
         queryKey: ["chat-history"],
       });
