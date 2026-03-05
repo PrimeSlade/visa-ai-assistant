@@ -12,6 +12,22 @@ export type GetChatHistoryResponse = {
   chatHistory: ChatHistoryMessage[];
 };
 
+export type SendChatReplyRequest = {
+  message: string;
+};
+
+export type SendChatReplyResponse = {
+  conversationId: string;
+  reply: string;
+  clientMessage: ChatHistoryMessage;
+  consultantMessage: ChatHistoryMessage;
+  status: {
+    clientMessage: "created";
+    aiReply: "generated";
+    consultantMessage: "created";
+  };
+};
+
 type ApiSuccessResponse<T> = {
   status: "success";
   code: number;
@@ -21,12 +37,37 @@ type ApiSuccessResponse<T> = {
 
 export const getChatHistory = async (): Promise<GetChatHistoryResponse> => {
   try {
-    const { data } = await apiClient.get<ApiSuccessResponse<GetChatHistoryResponse>>(
-      "/chat-history"
-    );
+    const { data } = await apiClient.get<
+      ApiSuccessResponse<GetChatHistoryResponse>
+    >("/chat-history");
 
     return data.data;
   } catch (error: any) {
     throw new Error(error.message ?? "Failed to fetch chat history.");
+  }
+};
+
+export const sendChatReply = async (
+  input: SendChatReplyRequest
+): Promise<SendChatReplyResponse> => {
+  try {
+    if (
+      !input ||
+      typeof input !== "object" ||
+      typeof input.message !== "string" ||
+      input.message.trim().length === 0
+    ) {
+      throw new Error(
+        "Invalid request payload. Expected an object like { message: string }."
+      );
+    }
+
+    const { data } = await apiClient.post<
+      ApiSuccessResponse<SendChatReplyResponse>
+    >("/chat-reply", input);
+
+    return data.data;
+  } catch (error: any) {
+    throw new Error(error.message ?? "Failed to send chat reply request.");
   }
 };

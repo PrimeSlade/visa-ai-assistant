@@ -1,5 +1,6 @@
 import { LoaderCircle } from "lucide-react";
 import type { ChatHistoryMessage } from "@/lib/chat.api";
+import { TypingIndicator } from "./typing-indicator";
 
 const defaultConsultantMessage =
   "Hello. I can help you understand the Thailand DTV process, required documents, eligibility questions, and application preparation. What would you like to start with?";
@@ -8,12 +9,14 @@ type ChatMessageListProps = {
   errorMessage?: string;
   isLoading: boolean;
   messages: ChatHistoryMessage[];
+  isTyping?: boolean;
 };
 
 export function ChatMessageList({
   errorMessage,
   isLoading,
   messages,
+  isTyping = false,
 }: ChatMessageListProps) {
   if (isLoading) {
     return (
@@ -35,7 +38,7 @@ export function ChatMessageList({
   return (
     <>
       <div className="flex justify-start">
-        <div className="w-fit max-w-[85%] rounded-2xl border border-border/70 bg-background px-4 py-3 text-sm leading-6 whitespace-pre-wrap break-words text-foreground sm:max-w-xl">
+        <div className="w-fit max-w-[85%] rounded-2xl rounded-bl-none border border-border/70 bg-background px-4 py-3 text-sm leading-6 whitespace-pre-wrap break-words text-foreground sm:max-w-xl">
           {defaultConsultantMessage}
         </div>
       </div>
@@ -49,14 +52,15 @@ export function ChatMessageList({
           <div
             className={`w-fit max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 whitespace-pre-wrap break-words sm:max-w-xl ${
               message.role === "consultant"
-                ? "border border-border/70 bg-background text-foreground"
-                : "bg-foreground text-background"
+                ? "rounded-bl-none border border-border/70 bg-background text-foreground"
+                : "rounded-br-none bg-foreground text-background"
             }`}
           >
             {message.message}
           </div>
         </div>
       ))}
+      {isTyping ? <TypingIndicator /> : null}
     </>
   );
 }

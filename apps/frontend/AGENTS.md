@@ -37,4 +37,6 @@ These instructions apply to everything under `apps/frontend`.
 
 - Do not edit `.next/` output manually.
 - Avoid introducing duplicate UI primitives when an existing shared component already fits.
+- Do not edit files in `components/ui/` for feature-level reusable components unless the user explicitly asks for UI primitive changes.
+- If reusable behavior is needed for a feature, create it under `components/<feature-name>/` (for example `components/chat/`) and compose from existing `components/ui/` primitives.
 - If a task changes route structure, auth flow, or shared styling direction, surface that in the plan before implementation.
