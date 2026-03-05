@@ -131,6 +131,12 @@ export default function ImproveAiAdminPage() {
             <Button asChild variant="outline">
               <Link href="/chat">Back to Chat</Link>
             </Button>
+            <Button asChild variant="secondary">
+              <Link href="/admin/improve-ai/budget">
+                <Sparkles className="size-4" />
+                Improve AI (JSON)
+              </Link>
+            </Button>
             <Button
               type="button"
               onClick={openPromptEditor}

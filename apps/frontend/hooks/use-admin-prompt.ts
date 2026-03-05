@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getAdminPrompt,
+  improveAiBudget,
+  type ImproveAiBudgetRequest,
   type UpdateConsultantPromptRequest,
   updateConsultantPrompt,
 } from "@/lib/prompt.api";
@@ -25,5 +27,11 @@ export function useUpdateConsultantPrompt() {
         queryKey: ["admin-prompt"],
       });
     },
+  });
+}
+
+export function useImproveAiBudget() {
+  return useMutation({
+    mutationFn: (input: ImproveAiBudgetRequest) => improveAiBudget(input),
   });
 }
