@@ -92,7 +92,7 @@ export default function ChatPage() {
         message={errorDialogMessage}
         onOpenChange={setIsErrorDialogOpen}
       />
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-2 sm:px-6 lg:px-8">
         <header className="flex items-center justify-between border-b border-border/70 py-4">
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold tracking-tight">
