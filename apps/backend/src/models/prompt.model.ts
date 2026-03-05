@@ -42,3 +42,19 @@ export type ImproveAiManuallyInput = {
 export type ImproveAiManuallyResult = {
   updatedPrompt: string;
 };
+
+export type AdminPromptResult = {
+  name: string;
+  prompt: string;
+  version: number;
+  lastUpdated: string;
+  source: string;
+};
+
+export type UpdateConsultantPromptRequestBody = {
+  prompt?: unknown;
+};
+
+export type UpdateConsultantPromptInput = {
+  prompt: string;
+};

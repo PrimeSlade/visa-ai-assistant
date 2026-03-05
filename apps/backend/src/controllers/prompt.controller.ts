@@ -3,12 +3,20 @@ import { sendSuccess } from "../lib/apiResponse";
 import { HttpError } from "../lib/errors";
 import { parseChatHistory, parseRequiredString } from "../lib/requestParsers";
 import type {
+  AdminPromptResult,
   ImproveAiInput,
   ImproveAiManuallyInput,
   ImproveAiManuallyRequestBody,
   ImproveAiRequestBody,
+  UpdateConsultantPromptInput,
+  UpdateConsultantPromptRequestBody,
 } from "../models/prompt.model";
-import { improveAi, improveAiManually } from "../services/prompt.service";
+import {
+  getAdminPromptByName,
+  improveAi,
+  improveAiManually,
+  updateConsultantPrompt,
+} from "../services/prompt.service";
 
 function parseImproveAiInput(body: ImproveAiRequestBody): ImproveAiInput {
   const { clientSequence, chatHistory, consultantReply } = body;
@@ -35,6 +43,19 @@ function parseImproveAiManuallyInput(
     instructions: parseRequiredString(
       instructions,
       "Request body must include a non-empty string `instructions`."
+    ),
+  };
+}
+
+function parseUpdateConsultantPromptInput(
+  body: UpdateConsultantPromptRequestBody
+): UpdateConsultantPromptInput {
+  const { prompt } = body;
+
+  return {
+    prompt: parseRequiredString(
+      prompt,
+      "Request body must include a non-empty string `prompt`."
     ),
   };
 }
@@ -87,6 +108,57 @@ export async function improveAiManuallyHandler(
 
     const message =
       error instanceof Error ? error.message : "Invalid request body.";
+    next(new HttpError(400, message));
+  }
+}
+
+export async function getAdminPromptByNameHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const result: AdminPromptResult = await getAdminPromptByName();
+    sendSuccess(res, {
+      message: "System prompt retrieved successfully.",
+      data: result,
+    });
+  } catch (error) {
+    if (error instanceof HttpError) {
+      next(error);
+      return;
+    }
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to retrieve system prompt.";
+    next(new HttpError(400, message));
+  }
+}
+
+export async function updateConsultantPromptHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const input: UpdateConsultantPromptInput = parseUpdateConsultantPromptInput(
+      req.body as UpdateConsultantPromptRequestBody
+    );
+    const result: AdminPromptResult = await updateConsultantPrompt(input);
+    sendSuccess(res, {
+      message: "Consultant prompt updated successfully.",
+      data: result,
+    });
+  } catch (error) {
+    if (error instanceof HttpError) {
+      next(error);
+      return;
+    }
+
+    const message =
+      error instanceof Error ? error.message : "Failed to update consultant prompt.";
     next(new HttpError(400, message));
   }
 }

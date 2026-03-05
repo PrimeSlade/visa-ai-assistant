@@ -1,17 +1,21 @@
 import { formatChatHistory } from "../lib/chatHistory";
 import { generateGeminiJson } from "../lib/gemini";
+import { HttpError } from "../lib/errors";
 import {
   getSystemPromptContent,
   PROMPT_EDITOR_SYSTEM_PROMPT_NAME,
   saveSystemPromptContent,
   SYSTEM_PROMPT_NAME,
 } from "../lib/systemPrompts";
+import prisma from "../lib/prisma";
 import type {
+  AdminPromptResult,
   ImproveAiInput,
   ImproveAiManuallyInput,
   ImproveAiManuallyResult,
   ImproveAiResult,
   PromptEditorResult,
+  UpdateConsultantPromptInput,
 } from "../models/prompt.model";
 import { generateReply } from "./chat.service";
 
@@ -111,7 +115,7 @@ function buildManualEditorSystemPrompt(editorPrompt: string): string {
     "- apply only the explicit INSTRUCTIONS",
     "- preserve all unrelated sections verbatim",
     "- do not add extra policies unless the instructions require them",
-    '- return the complete updated prompt text in the caller\'s requested JSON schema',
+    "- return the complete updated prompt text in the caller's requested JSON schema",
   ].join("\n");
 }
 
@@ -184,4 +188,30 @@ export async function improveAiManually(
   return {
     updatedPrompt,
   };
+}
+
+export async function getAdminPromptByName(): Promise<AdminPromptResult> {
+  const name = SYSTEM_PROMPT_NAME;
+  const prompt = await prisma.systemPrompt.findUnique({
+    where: { name },
+  });
+
+  if (!prompt) {
+    throw new HttpError(404, `System prompt "${name}" was not found.`);
+  }
+
+  return {
+    name: prompt.name,
+    prompt: prompt.content,
+    version: prompt.version,
+    lastUpdated: prompt.updatedAt.toISOString(),
+    source: "database",
+  };
+}
+
+export async function updateConsultantPrompt(
+  input: UpdateConsultantPromptInput
+): Promise<AdminPromptResult> {
+  await saveSystemPromptContent(input.prompt, SYSTEM_PROMPT_NAME);
+  return getAdminPromptByName();
 }
