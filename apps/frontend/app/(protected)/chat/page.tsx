@@ -102,11 +102,11 @@ export default function ChatPage() {
             <StarterPromptList onSelect={setInput} />
           </aside>
 
-          <Card className="flex min-h-[680px] flex-col border-border/70 bg-card/80">
+          <Card className="flex h-[680px] flex-col border-border/70 bg-card/80">
             <ChatHeader />
 
-            <CardContent className="flex flex-1 flex-col">
-              <div className="space-y-4">
+            <CardContent className="flex flex-1 min-h-0 flex-col">
+              <div className="flex-1 min-h-0 space-y-4 overflow-y-auto pr-1">
                 <ChatMessageList
                   errorMessage={errorMessage}
                   isLoading={isLoading}
@@ -115,7 +115,7 @@ export default function ChatPage() {
                 />
               </div>
 
-              <div className="mt-auto pt-10">
+              <div className="mt-auto pt-4">
                 <ChatComposer
                   input={input}
                   isFetching={isFetching || isSendingReply}

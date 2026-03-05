@@ -5,6 +5,46 @@ import { TypingIndicator } from "./typing-indicator";
 const defaultConsultantMessage =
   "Hello. I can help you understand the Thailand DTV process, required documents, eligibility questions, and application preparation. What would you like to start with?";
 
+function formatMessageDate(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function shouldShowTimestamp(
+  messages: ChatHistoryMessage[],
+  index: number
+): boolean {
+  const current = messages[index];
+  const next = messages[index + 1];
+
+  if (!next) {
+    return true;
+  }
+
+  if (current.role !== next.role) {
+    return true;
+  }
+
+  const currentTime = new Date(current.createdAt).getTime();
+  const nextTime = new Date(next.createdAt).getTime();
+
+  if (Number.isNaN(currentTime) || Number.isNaN(nextTime)) {
+    return true;
+  }
+
+  return Math.abs(nextTime - currentTime) >= 5 * 60 * 1000;
+}
+
 type ChatMessageListProps = {
   errorMessage?: string;
   isLoading: boolean;
@@ -42,22 +82,36 @@ export function ChatMessageList({
           {defaultConsultantMessage}
         </div>
       </div>
-      {messages.map((message) => (
-        <div
-          key={message.id}
-          className={`flex ${
-            message.role === "consultant" ? "justify-start" : "justify-end"
-          }`}
-        >
+      {messages.map((message, index) => (
+        <div key={message.id} className="space-y-1">
           <div
-            className={`w-fit max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 whitespace-pre-wrap break-words sm:max-w-xl ${
-              message.role === "consultant"
-                ? "rounded-bl-none border border-border/70 bg-background text-foreground"
-                : "rounded-br-none bg-foreground text-background"
+            className={`flex ${
+              message.role === "consultant" ? "justify-start" : "justify-end"
             }`}
           >
-            {message.message}
+            <div className="w-fit max-w-[85%] sm:max-w-xl">
+              <div
+                className={`rounded-2xl px-4 py-3 text-sm leading-6 whitespace-pre-wrap break-words ${
+                  message.role === "consultant"
+                    ? "rounded-bl-none border border-border/70 bg-background text-foreground"
+                    : "rounded-br-none bg-foreground text-background"
+                }`}
+              >
+                {message.message}
+              </div>
+            </div>
           </div>
+          {shouldShowTimestamp(messages, index) ? (
+            <div
+              className={`flex ${
+                message.role === "consultant" ? "justify-start" : "justify-end"
+              }`}
+            >
+              <div className="px-1 text-xs text-muted-foreground">
+                {formatMessageDate(message.createdAt)}
+              </div>
+            </div>
+          ) : null}
         </div>
       ))}
       {isTyping ? <TypingIndicator /> : null}
