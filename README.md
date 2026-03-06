@@ -72,3 +72,34 @@ npm run dev:backend
 
 Frontend: `http://localhost:3000`  
 Backend: `http://localhost:4000`
+
+## Deploy with Docker Compose (Neon DB)
+
+Dockerfiles are organized per app:
+
+- `apps/backend/Dockerfile` for backend
+- `apps/frontend/Dockerfile` for frontend
+
+### 1. Prepare env file
+
+```bash
+cp .env.compose.example .env
+```
+
+Then edit `.env` and set:
+
+- `DATABASE_URL` to your Neon connection string
+- `GEMINI_API`
+- `BETTER_AUTH_SECRET`
+
+### 2. Build and run
+
+```bash
+docker compose up -d --build
+```
+
+### 3. Stop services
+
+```bash
+docker compose down
+```
