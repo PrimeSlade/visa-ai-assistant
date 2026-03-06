@@ -73,60 +73,33 @@ npm run dev:backend
 Frontend: `http://localhost:3000`  
 Backend: `http://localhost:4000`
 
-## Deploy
+## Production Deployment (Current)
 
-### Backend: Coolify on DigitalOcean
+This project is currently deployed as:
 
-Use your root `Dockerfile.api` for backend deployment.
+- Backend: Coolify on a DigitalOcean host
+- Frontend: Vercel
 
-1. In Coolify, create a new application from this repo.
-2. Set build context to repository root.
-3. Set Dockerfile path to `Dockerfile.api`.
-4. Set exposed/internal port to `4000`.
-5. Set health check path to `/api/health`.
-6. Add backend environment variables:
-   - `PORT=4000`
-   - `DATABASE_URL=postgresql://...` (your Neon/Postgres URL)
-   - `GEMINI_API=...`
-   - `GEMINI_MODEL=gemini-2.5-flash` (optional override)
-   - `FRONTEND_URL=https://your-frontend-domain.vercel.app`
-   - `BETTER_AUTH_URL=https://your-backend-domain`
-   - `BETTER_AUTH_SECRET=your_random_32_plus_char_secret`
-   - `BETTER_AUTH_TRUSTED_ORIGINS=https://your-frontend-domain.vercel.app`
-7. Deploy and confirm backend is healthy at `https://your-backend-domain/api/health`.
+### Current backend runtime shape
 
-Notes:
-- `BETTER_AUTH_URL` must be your public backend URL.
-- `FRONTEND_URL` and `BETTER_AUTH_TRUSTED_ORIGINS` must include your Vercel frontend domain for cookie/auth + CORS flow.
+- Backend image is built from root `Dockerfile.api`.
+- Express API runs on `PORT=4000`.
+- Health endpoint is `GET /api/health`.
+- Database is Postgres via `DATABASE_URL`.
+- Gemini is configured via `GEMINI_API` (and optional `GEMINI_MODEL`).
+- Better Auth relies on:
+  - `BETTER_AUTH_URL` (public backend URL)
+  - `BETTER_AUTH_SECRET`
+  - `FRONTEND_URL` (frontend origin)
+  - `BETTER_AUTH_TRUSTED_ORIGINS` (allowed frontend origins)
 
-### Frontend: Vercel
+### Current frontend runtime shape
 
-1. Import this repo in Vercel.
-2. Set Root Directory to `apps/frontend`.
-3. Keep default Next.js build settings.
-4. Add frontend environment variable:
-   - `NEXT_PUBLIC_API_URL=https://your-backend-domain`
-5. Deploy.
+- Frontend is deployed from `apps/frontend` on Vercel.
+- Frontend API base URL is set with `NEXT_PUBLIC_API_URL` and points to the deployed backend URL.
+- Frontend uses credentialed requests (`withCredentials`), so backend CORS/auth origin envs must match the live frontend domain.
 
-If you use a custom frontend domain, update backend env:
-- `FRONTEND_URL=https://your-custom-frontend-domain`
-- `BETTER_AUTH_TRUSTED_ORIGINS=https://your-custom-frontend-domain`
+## Operational Notes
 
-## Post-Deploy Checklist
-
-1. Backend health check returns success: `GET /api/health`.
-2. Frontend can call backend API without CORS errors.
-3. Auth works (login/session cookies persist).
-4. Chat and admin pages can read/write prompt data.
-
-## Troubleshooting
-
-- CORS errors:
-  - Verify backend `FRONTEND_URL` exactly matches your active frontend origin.
-  - Add all allowed frontend origins in `BETTER_AUTH_TRUSTED_ORIGINS` (comma-separated).
-- Auth redirect/session issues:
-  - Verify `BETTER_AUTH_URL` is the public backend URL, not localhost.
-- Frontend cannot reach backend:
-  - Verify `NEXT_PUBLIC_API_URL` points to backend public HTTPS URL.
-- Backend boot/runtime failures:
-  - Verify `DATABASE_URL` and `GEMINI_API` are set correctly in Coolify.
+- If frontend domain changes, update backend `FRONTEND_URL` and `BETTER_AUTH_TRUSTED_ORIGINS`.
+- If backend domain changes, update backend `BETTER_AUTH_URL` and frontend `NEXT_PUBLIC_API_URL`.
