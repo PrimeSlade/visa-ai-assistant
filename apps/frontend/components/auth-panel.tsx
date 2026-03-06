@@ -138,10 +138,12 @@ export function AuthPanel() {
     <Card className="border-border/70 bg-card/90 shadow-lg shadow-black/5 backdrop-blur supports-[backdrop-filter]:bg-card/75 lg:sticky lg:top-8">
       <CardHeader className="gap-4">
         <div className="space-y-1">
-          <CardTitle className="text-2xl tracking-tight">Sign in to your account</CardTitle>
+          <CardTitle className="text-2xl tracking-tight">
+            Sign in to your account
+          </CardTitle>
           <CardDescription className="max-w-sm text-sm leading-6">
-            Access your conversations, updates, and visa guidance in one
-            secure place.
+            Access your conversations, updates, and visa guidance in one secure
+            place.
           </CardDescription>
         </div>
       </CardHeader>
@@ -241,10 +243,6 @@ export function AuthPanel() {
                 handleSignIn();
               }}
             >
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/admin/assign-role">Assign Admin Role</Link>
-              </Button>
-
               <div className="space-y-2">
                 <Label htmlFor="sign-in-email">Email</Label>
                 <Input
@@ -309,7 +307,8 @@ export function AuthPanel() {
 
         {sessionError ? (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            We couldn't verify your session right now. {getErrorMessage(sessionError)}
+            We couldn't verify your session right now.{" "}
+            {getErrorMessage(sessionError)}
           </div>
         ) : null}
       </CardContent>
