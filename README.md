@@ -73,33 +73,60 @@ npm run dev:backend
 Frontend: `http://localhost:3000`  
 Backend: `http://localhost:4000`
 
-## Deploy with Docker Compose (Neon DB)
+## Deploy
 
-Dockerfiles are organized per app:
+### Backend: Coolify on DigitalOcean
 
-- `apps/backend/Dockerfile` for backend
-- `apps/frontend/Dockerfile` for frontend
+Use your root `Dockerfile.api` for backend deployment.
 
-### 1. Prepare env file
+1. In Coolify, create a new application from this repo.
+2. Set build context to repository root.
+3. Set Dockerfile path to `Dockerfile.api`.
+4. Set exposed/internal port to `4000`.
+5. Set health check path to `/api/health`.
+6. Add backend environment variables:
+   - `PORT=4000`
+   - `DATABASE_URL=postgresql://...` (your Neon/Postgres URL)
+   - `GEMINI_API=...`
+   - `GEMINI_MODEL=gemini-2.5-flash` (optional override)
+   - `FRONTEND_URL=https://your-frontend-domain.vercel.app`
+   - `BETTER_AUTH_URL=https://your-backend-domain`
+   - `BETTER_AUTH_SECRET=your_random_32_plus_char_secret`
+   - `BETTER_AUTH_TRUSTED_ORIGINS=https://your-frontend-domain.vercel.app`
+7. Deploy and confirm backend is healthy at `https://your-backend-domain/api/health`.
 
-```bash
-cp .env.compose.example .env
-```
+Notes:
+- `BETTER_AUTH_URL` must be your public backend URL.
+- `FRONTEND_URL` and `BETTER_AUTH_TRUSTED_ORIGINS` must include your Vercel frontend domain for cookie/auth + CORS flow.
 
-Then edit `.env` and set:
+### Frontend: Vercel
 
-- `DATABASE_URL` to your Neon connection string
-- `GEMINI_API`
-- `BETTER_AUTH_SECRET`
+1. Import this repo in Vercel.
+2. Set Root Directory to `apps/frontend`.
+3. Keep default Next.js build settings.
+4. Add frontend environment variable:
+   - `NEXT_PUBLIC_API_URL=https://your-backend-domain`
+5. Deploy.
 
-### 2. Build and run
+If you use a custom frontend domain, update backend env:
+- `FRONTEND_URL=https://your-custom-frontend-domain`
+- `BETTER_AUTH_TRUSTED_ORIGINS=https://your-custom-frontend-domain`
 
-```bash
-docker compose up -d --build
-```
+## Post-Deploy Checklist
 
-### 3. Stop services
+1. Backend health check returns success: `GET /api/health`.
+2. Frontend can call backend API without CORS errors.
+3. Auth works (login/session cookies persist).
+4. Chat and admin pages can read/write prompt data.
 
-```bash
-docker compose down
-```
+## Troubleshooting
+
+- CORS errors:
+  - Verify backend `FRONTEND_URL` exactly matches your active frontend origin.
+  - Add all allowed frontend origins in `BETTER_AUTH_TRUSTED_ORIGINS` (comma-separated).
+- Auth redirect/session issues:
+  - Verify `BETTER_AUTH_URL` is the public backend URL, not localhost.
+- Frontend cannot reach backend:
+  - Verify `NEXT_PUBLIC_API_URL` points to backend public HTTPS URL.
+- Backend boot/runtime failures:
+  - Verify `DATABASE_URL` and `GEMINI_API` are set correctly in Coolify.
