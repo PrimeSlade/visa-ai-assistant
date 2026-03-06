@@ -79,13 +79,14 @@ This project is currently deployed as:
 
 - Backend: Coolify on a DigitalOcean host
 - Frontend: Vercel
+- Database: Neon Postgres (used by backend)
 
 ### Current backend runtime shape
 
 - Backend image is built from root `Dockerfile.api`.
 - Express API runs on `PORT=4000`.
 - Health endpoint is `GET /api/health`.
-- Database is Postgres via `DATABASE_URL`.
+- Database is Neon Postgres via `DATABASE_URL`.
 - Gemini is configured via `GEMINI_API` (and optional `GEMINI_MODEL`).
 - Better Auth relies on:
   - `BETTER_AUTH_URL` (public backend URL)
