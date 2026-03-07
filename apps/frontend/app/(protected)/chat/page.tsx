@@ -156,7 +156,7 @@ export default function ChatPage() {
               <div className="mt-auto pt-4">
                 <ChatComposer
                   input={input}
-                  isFetching={isFetching || isSendingReply}
+                  isFetching={isSendingReply}
                   onChange={setInput}
                   onSubmit={() => {
                     void handleComposerSubmit();
